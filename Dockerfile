@@ -9,9 +9,9 @@ WORKDIR /app
 
 # copy the app, note .dockerignore
 COPY package*.json .
+RUN npm ci
 COPY . .
-RUN npm ci \
-    npm run build
+RUN npm run build
 
 FROM $NODE_VERSION AS production
 
