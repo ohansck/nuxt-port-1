@@ -9,6 +9,7 @@ WORKDIR /app
 
 # copy the app, note .dockerignore
 COPY package*.json .
+COPY . .
 RUN npm ci \
     npm run build
 
