@@ -17,12 +17,13 @@ WORKDIR /app
 
 # Copy only necessary files from the builder stage
 COPY --from=builder /app/.output /app/.output
-COPY --from=builder /app/package*.json /app/
 
+ARG NUXT_APP_VERSION
 # Set environment variables
 ENV NUXT_HOST=0.0.0.0 \
     NODE_ENV=production \
-    DATABASE_URL=file:./db.sqlite
+    DATABASE_URL=file:./db.sqlite \
+    NUXT_APP_VERSION=${NUXT_APP_VERSION}
 
 # Start the app
 CMD ["node", "/app/.output/server/index.mjs"]
