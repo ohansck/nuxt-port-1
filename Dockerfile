@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Install dependencies and build the app in a single step
 COPY package*.json ./
+COPY . .
 RUN npm ci && npm run build
 
 # Production image
