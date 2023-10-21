@@ -1,33 +1,28 @@
-# see https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
+# Use a lightweight base image
 ARG NODE_VERSION=node:current-alpine3.17
+FROM $NODE_VERSION AS builder
 
-FROM $NODE_VERSION AS dependency-base
-
-# create destination directory
-RUN mkdir -p /app
+# Set working directory
 WORKDIR /app
 
-# copy the app, note .dockerignore
-COPY package*.json .
-RUN npm ci
-COPY . .
-RUN npm run build
+# Install dependencies and build the app in a single step
+COPY package*.json ./
+RUN npm ci && npm run build
 
+# Production image
 FROM $NODE_VERSION AS production
 
-COPY --from=dependency-base /app/.output /app/.output
+# Set working directory
+WORKDIR /app
 
-# Service hostname
-ENV NUXT_HOST=0.0.0.0
+# Copy only necessary files from the builder stage
+COPY --from=builder /app/.output /app/.output
+COPY --from=builder /app/package*.json /app/
 
-# Service version
-ARG NUXT_APP_VERSION
-ENV NUXT_APP_VERSION=${NUXT_APP_VERSION}
+# Set environment variables
+ENV NUXT_HOST=0.0.0.0 \
+    NODE_ENV=production \
+    DATABASE_URL=file:./db.sqlite
 
-ENV DATABASE_URL=file:./db.sqlite
-
-# Run in production mode
-ENV NODE_ENV=production
-
-# start the app
-CMD [ "node", "/app/.output/server/index.mjs" ]
+# Start the app
+CMD ["node", "/app/.output/server/index.mjs"]
