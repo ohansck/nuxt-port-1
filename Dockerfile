@@ -30,4 +30,4 @@ ENV NUXT_HOST=0.0.0.0 \
 
 EXPOSE 3000
 # Start the app
-CMD ["nuxt", "start"]
+CMD ["node", "/app/.output/server/index.mjs"]
