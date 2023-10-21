@@ -8,20 +8,13 @@ RUN mkdir -p /app
 WORKDIR /app
 
 # copy the app, note .dockerignore
-COPY package.json .
-COPY package-lock.json .
-RUN npm ci
-
-FROM dependency-base AS production-base
-
-# build will also take care of building
-# if necessary
-COPY . .
-RUN npm run build
+COPY package*.json .
+RUN npm ci \
+    npm run build
 
 FROM $NODE_VERSION AS production
 
-COPY --from=production-base /app/.output /app/.output
+COPY --from=dependency-base /app/.output /app/.output
 
 # Service hostname
 ENV NUXT_HOST=0.0.0.0
